@@ -1,0 +1,93 @@
+brooklyn.catalog:
+  publish: &nexusPublish
+    name: &nexusName "Nexus Repository OSS"
+    description: &nexusDescription |
+      The world's only repository manager with FREE support for popular formats.
+    version: &nexusVersion "1.0.0-SNAPSHOT" # BROOKLYN_NEXUS_VERSION
+    iconUrl: &nexusIconUrl "https://github.com/sonatype.png"
+    licence: &nexusLicence "Apache-2.0"
+  items:
+    - id: nexus
+      name: *nexusName
+      version: *nexusVersion
+      iconUrl: *nexusIconUrl
+      description: *nexusDescription
+      publish: *nexusPublish
+      itemType: entity
+      item:
+        type: org.apache.brooklyn.entity.software.base.VanillaSoftwareProcess
+        name: "Nexus"
+        id: nexus
+        provisioning.properties:
+          osFamily: centos
+          osVersionRegex: 7
+        brooklyn.parameters:
+
+        - name: nexus.download.url
+          label: "Nexus download url"
+          description: |
+            The nexus download url
+          type: string
+          default: "http://www.sonatype.org/downloads/nexus-latest-bundle.tar.gz"
+        - name: nexus.http.port
+          label: "Nexus HTTP port"
+          description: |
+            The nexus HTTP port
+          type: integer
+          default: 8081
+
+        brooklyn.config:
+          shell.env:
+            ENTITY_ID: $brooklyn:attributeWhenReady("entity.id")
+            INSTALL_DIR: $brooklyn:attributeWhenReady("install.dir")
+            NEXUS_HTTP_HOST: $brooklyn:attributeWhenReady("host.subnet.address")
+            NEXUS_HTTP_PORT: $brooklyn:config("nexus.http.port")
+            NEXUS_DOWNLOAD_URL: $brooklyn:config("nexus.download.url")
+
+          install.command: |
+            sudo yum update -y
+            sudo yum install -y augeas java-1.8.0-openjdk
+            curl --retry 5 --keepalive-time 30 --speed-time 30 -L "${NEXUS_DOWNLOAD_URL}" --output ${INSTALL_DIR}/nexus.tar.gz
+            tar -xvf ${INSTALL_DIR}/nexus.tar.gz
+            mv ${INSTALL_DIR}/nexus-2*/ ${INSTALL_DIR}/nexus-2.X/
+
+            sudo tee /etc/systemd/system/nexus.service <<-EOF
+            [Unit]
+            Description=Nexus
+            After=network.target
+
+            [Service]
+            User=${USER}
+            TimeoutStartSec=0
+            ExecStartPre=-${INSTALL_DIR}/nexus-2.X/bin/nexus stop
+            ExecStart=${INSTALL_DIR}/nexus-2.X/bin/nexus console
+            Restart=on-abort
+
+            [Install]
+            WantedBy=multi-user.target
+            EOF
+            sudo systemctl daemon-reload
+            sudo systemctl enable nexus.service
+          customize.command: |
+            sudo augtool -Ast "Properties incl ${INSTALL_DIR}/nexus-2.X/conf/nexus.properties" <<-EOF
+            set /files/${INSTALL_DIR}/nexus-2.X/conf/nexus.properties/application-host ${NEXUS_HTTP_HOST}
+            set /files/${INSTALL_DIR}/nexus-2.X/conf/nexus.properties/application-port ${NEXUS_HTTP_PORT}
+            EOF
+          launch.command: sudo systemctl start nexus
+          stop.command: sudo systemctl stop nexus
+          checkRunning.command: sudo systemctl status nexus
+
+        brooklyn.enrichers:
+          - type: org.apache.brooklyn.enricher.stock.Transformer
+            brooklyn.config:
+              uniqueTag: nexus-main-uri-enricher
+              enricher.producer: $brooklyn:entity("nexus")
+              enricher.triggerSensors:
+                - $brooklyn:sensor("host.address")
+              enricher.targetSensor:
+                $brooklyn:sensor("org.apache.brooklyn.core.entity.Attributes", "main.uri")
+              enricher.targetValue:
+                $brooklyn:formatString:
+                  - "http://%s:%s/nexus"
+                  - $brooklyn:attributeWhenReady("host.address")
+                  - $brooklyn:config("nexus.http.port")
