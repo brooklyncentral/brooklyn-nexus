@@ -1,13 +1,13 @@
 brooklyn.catalog:
   publish: &nexusPublish
-    name: &nexusName "Nexus Repository OSS"
+    name: &nexusName "Nexus Repository OSS 2.X"
     description: &nexusDescription |
       The world's only repository manager with FREE support for popular formats.
     version: &nexusVersion "1.0.0-SNAPSHOT" # BROOKLYN_NEXUS_VERSION
     iconUrl: &nexusIconUrl "https://github.com/sonatype.png"
     licence: &nexusLicence "Apache-2.0"
   items:
-    - id: nexus
+    - id: nexus-2
       name: *nexusName
       version: *nexusVersion
       iconUrl: *nexusIconUrl
@@ -16,8 +16,8 @@ brooklyn.catalog:
       itemType: entity
       item:
         type: org.apache.brooklyn.entity.software.base.VanillaSoftwareProcess
-        name: "Nexus"
-        id: nexus
+        name: *nexusName
+        id: nexus-2
         provisioning.properties:
           osFamily: centos
           osVersionRegex: 7
@@ -81,7 +81,7 @@ brooklyn.catalog:
           - type: org.apache.brooklyn.enricher.stock.Transformer
             brooklyn.config:
               uniqueTag: nexus-main-uri-enricher
-              enricher.producer: $brooklyn:entity("nexus")
+              enricher.producer: $brooklyn:entity("nexus-2")
               enricher.triggerSensors:
                 - $brooklyn:sensor("host.address")
               enricher.targetSensor:

@@ -1,3 +1,3 @@
 brooklyn.catalog:
   items:
-    - "https://raw.githubusercontent.com/brooklyncentral/brooklyn-nexus/master/catalog/nexus/nexus.bom"
+    - "https://raw.githubusercontent.com/brooklyncentral/brooklyn-nexus/2.X/catalog/nexus/nexus.bom"

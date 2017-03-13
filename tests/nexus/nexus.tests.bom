@@ -7,16 +7,16 @@ brooklyn.catalog:
       version: *nexusVersion
       itemType: template
       iconUrl: *nexusIconUrl
-      name: "Nexus Repository OSS Tests"
+      name: "Nexus Repository OSS 2.X Tests"
       item:
         services:
-          - type: nexus
-            id: nexus
+          - type: nexus-2
+            id: nexus-2
           - type: test-case
             name: "Nexus Tests"
             brooklyn.config:
               timeout: 1h
-              targetId: nexus
+              targetId: nexus-2
               process.grep.name: "[n]exus"
             brooklyn.children:
               - type: assert-up-and-running-initial
