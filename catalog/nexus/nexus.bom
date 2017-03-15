@@ -5,7 +5,7 @@ brooklyn.catalog:
       The world's only repository manager with FREE support for popular formats.
     version: &nexusVersion "1.0.0-SNAPSHOT" # BROOKLYN_NEXUS_VERSION
     iconUrl: &nexusIconUrl "https://github.com/sonatype.png"
-    licence: &nexusLicence "Apache-2.0"
+    license_code: &nexusLicence "Apache-2.0"
   items:
     - id: nexus
       name: *nexusName
