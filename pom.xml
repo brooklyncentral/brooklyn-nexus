@@ -6,8 +6,18 @@
 
     <groupId>io.brooklyncentral.nexus</groupId>
     <artifactId>brooklyn-nexus</artifactId>
+    <packaging>bundle</packaging>
     <version>1.0.0-SNAPSHOT</version>
+
+    <parent>
+        <groupId>io.brooklyn</groupId>
+        <artifactId>brooklyncentral-parent</artifactId>
+        <version>1.0.1</version>
+    </parent>
+
     <name>Brooklyn :: Nexus</name>
+    <description>Apache Brooklyn blueprints for deploying Nexus. </description>
+    <url>https://github.com/brooklyncentral/brooklyn-nexus</url>
 
     <properties>
         <build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
@@ -20,12 +30,21 @@
         <developerConnection>scm:git:git@github.com:brooklyncentral/brooklyn-nexus.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
+
     <licenses>
         <license>
             <name>Apache 2.0</name>
             <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
+
+    <!-- For the full list of developers, see contributors to https://github.com/brooklyncentral/brooklyn-postgresql -->
+    <developers>
+        <developer>
+            <name>Cloudsoft</name>
+            <organizationUrl>https://github.com/cloudsoft</organizationUrl>
+        </developer>
+    </developers>
 
     <build>
         <resources>
